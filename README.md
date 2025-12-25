@@ -1,5 +1,5 @@
 # Weather-Data-Analysis-Minor-Project
-A Python-based system to analyze seasonal weather trends and detect outliers in Delhi.
+A Python-based system to analyze weather trends and detect outliers in Delhi.
 
 # Weather Data Analysis & Visualization System 🌦️
 
@@ -7,12 +7,12 @@ A Python-based system to analyze seasonal weather trends and detect outliers in 
 # Weather Data Analysis System 🌦️
 
 ### 👋 About Me & The Project
-Hi, this is my submission for the **Minor Project (3rd Sem)**.
+Hi i am Abhishek kumar, this is my submission for the **Minor Project (3rd Sem)**.
 I built this system to analyze 4 years of historical weather data from Delhi. My main goal was to move beyond just looking at excel sheets and actually visualize how the climate changes seasonally, and to mathematically catch any "freak" weather events (outliers).
 
-### 🎯 What I Did
+### 🎯 What I Did in this project
 Instead of just plotting a graph, I focused on three specific tasks:
-1. **Cleaning the Data:** The raw dates were just text, so I had to convert and sort them to make the time-series work.
+1. **Cleaning the Data:** The raw which i take from kaggle dataset, and I had to convert and sort them to make the time-series work.
 2. **Visualizing Trends:** I plotted the temperature over time to clearly show the Summer/Winter cycles (the "waves" in the graph).
 3. **Finding Outliers:** I used a statistical method called **Z-Score**. Basically, I wrote code to flag any day that was more than 3 standard deviations away from the average temperature.
 
@@ -44,10 +44,10 @@ The analysis was successful. The Line Plot perfectly captures the seasonal sine-
 
 ## 📊 How to Run
 1.  Download the `.ipynb` file and the `.csv` file from this repository.
-2.  Open the notebook in **Google Colab** or **Jupyter Notebook**.
-3.  Upload the CSV file to the runtime environment.
-4.  Run all cells to see the analysis and graphs.
+2.  Open the notebook in **Google Colab** .
+3.  Upload the CSV file to the runtime .
+4. Run the code and thats it
 
 ## 📈 Results
-* **Seasonality:** The Line Plot clearly shows a sinusoidal wave pattern representing 4 annual summer-winter cycles.
-* **Anomalies:** The Box Plot and Z-Score method confirm the distribution of temperature data and identify any statistical outliers.
+* **Seasonality:** The Line Plot clearly shows a sinusoidal wave pattern representing 4 annual summer-winter cycles of delhi.
+* **Anomalies:** The Box Plot and z-Score method confirm the distribution of temperature data and identify any statistical outliers.
