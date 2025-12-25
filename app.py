@@ -5,52 +5,56 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
 
-# --- 1. THE HEADER ---
-st.title("🌦️ Weather Data Analysis System")
-st.write("Welcome! This dashboard analyzes 4 years of Delhi climate data to find trends and anomalies.")
+st.title("🌦️ Debugging Mode: Weather App")
 
-# --- 2. LOADING DATA ---
-st.header("Step 1: The Raw Data")
-# We use st.cache so it doesn't reload the big file every time you click a button
-@st.cache_data
-def load_data():
-    # Make sure this matches your CSV filename exactly!
-    df = pd.read_csv('DailyDelhiClimateTrain.csv')
-    df = df.rename(columns={'date': 'Date', 'meantemp': 'Temperature'})
-    df['Date'] = pd.to_datetime(df['Date'])
-    return df
+# --- STEP 1: LOAD DATA ---
+st.write("✅ Checkpoint 1: Starting App...")
 
 try:
-    df = load_data()
-    # Shows the first 5 rows in a nice interactive table
+    df = pd.read_csv('DailyDelhiClimateTrain.csv')
+    st.write("✅ Checkpoint 2: CSV Found!")
+    
+    # Renaming (Crucial Step - if this fails, everything fails)
+    df = df.rename(columns={
+        'date': 'Date', 
+        'meantemp': 'Temperature',
+        'humidity': 'Humidity', 
+        'wind_speed': 'WindSpeed'
+    })
+    
+    # Date Conversion
+    df['Date'] = pd.to_datetime(df['Date'])
+    st.write("✅ Checkpoint 3: Data Cleaned & Renamed!")
     st.dataframe(df.head())
-    st.success("Data loaded successfully!")
 
-    # --- 3. THE GRAPHS ---
-    st.header("Step 2: Visualizing Trends")
-    st.write("Here is the temperature change over time. Notice the seasonal wave.")
-
-    # Create the figure explicitly
+    # --- STEP 2: DRAW LINE GRAPH ---
+    st.write("⏳ Checkpoint 4: Attempting to draw Line Graph...")
+    
     fig, ax = plt.subplots(figsize=(10, 4))
-    ax.plot(df['Date'], df['Temperature'], color='teal')
-    ax.set_title('Daily Temperature Trends')
-    ax.set_ylabel('Temperature (°C)')
+    ax.plot(df['Date'], df['Temperature'], color='green')
+    ax.set_title("Temperature Trends")
+    st.pyplot(fig)
     
-    # MAGIC COMMAND: This draws the plot on the website
-    st.pyplot(fig) 
+    st.write("✅ Checkpoint 5: Line Graph Done!")
 
-    # --- 4. THE MATH (Outliers) ---
-    st.header("Step 3: Detecting Anomalies")
+    # --- STEP 3: CALCULATE OUTLIERS ---
+    st.write("⏳ Checkpoint 6: Calculating Statistics (Scipy)...")
     
-    # Calculate Z-score (Behind the scenes)
     df['z_score'] = stats.zscore(df['Temperature'])
     outliers = df[np.abs(df['z_score']) > 3]
-
-    st.metric(label="Total Outliers Found", value=len(outliers))
     
-    if len(outliers) > 0:
-        st.write("These dates had extreme temperatures (statistically rare):")
-        st.dataframe(outliers[['Date', 'Temperature']])
+    st.write(f"✅ Checkpoint 7: Found {len(outliers)} outliers!")
+
+    # --- STEP 4: SEABORN PLOT ---
+    st.write("⏳ Checkpoint 8: Attempting Seaborn Boxplot...")
+    
+    fig2, ax2 = plt.subplots(figsize=(10, 4))
+    sns.boxplot(x=df['Temperature'], ax=ax2)
+    st.pyplot(fig2)
+    
+    st.success("🎉 CONGRATULATIONS! ALL CODE RAN SUCCESSFULLY!")
 
 except Exception as e:
-    st.error(f"Something went wrong: {e}")
+    st.error("❌ THE APP CRASHED HERE!")
+    st.error(f"Error Message: {e}")
+    st.warning("Please copy the error message above and paste it in the chat.")
