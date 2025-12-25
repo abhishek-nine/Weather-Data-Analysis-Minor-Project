@@ -5,16 +5,24 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
 
-st.title("🌦️ Debugging Mode: Weather App")
+# --- PAGE CONFIGURATION ---
+st.set_page_config(page_title="Delhi Weather Analysis", page_icon="🌦️")
 
-# --- STEP 1: LOAD DATA ---
-st.write("✅ Checkpoint 1: Starting App...")
+# --- 1. TITLE & INTRO ---
+st.title("🌦️ Weather Data Analysis System")
+st.markdown("""
+**Welcome!** This dashboard visualizes 4 years of climate data in Delhi to find:
+* 📅 **Seasonal Trends** (Summer/Winter Cycles)
+* 🌡️ **Anomalies** (Extreme Weather Events)
+""")
 
-try:
+# --- 2. LOAD DATA ---
+@st.cache_data
+def load_data():
+    # Load dataset
     df = pd.read_csv('DailyDelhiClimateTrain.csv')
-    st.write("✅ Checkpoint 2: CSV Found!")
     
-    # Renaming (Crucial Step - if this fails, everything fails)
+    # Rename columns for clarity
     df = df.rename(columns={
         'date': 'Date', 
         'meantemp': 'Temperature',
@@ -22,39 +30,65 @@ try:
         'wind_speed': 'WindSpeed'
     })
     
-    # Date Conversion
+    # Convert dates
     df['Date'] = pd.to_datetime(df['Date'])
-    st.write("✅ Checkpoint 3: Data Cleaned & Renamed!")
-    st.dataframe(df.head())
+    return df
 
-    # --- STEP 2: DRAW LINE GRAPH ---
-    st.write("⏳ Checkpoint 4: Attempting to draw Line Graph...")
-    
-    fig, ax = plt.subplots(figsize=(10, 4))
-    ax.plot(df['Date'], df['Temperature'], color='green')
-    ax.set_title("Temperature Trends")
-    st.pyplot(fig)
-    
-    st.write("✅ Checkpoint 5: Line Graph Done!")
+# Run the data loading function
+try:
+    df = load_data()
+    st.success("✅ Data loaded successfully!")
 
-    # --- STEP 3: CALCULATE OUTLIERS ---
-    st.write("⏳ Checkpoint 6: Calculating Statistics (Scipy)...")
+    # Interactive Checkbox: Show Raw Data
+    if st.checkbox("Show Raw Data Table"):
+        st.write(df.head(10))
+
+    # --- 3. TREND VISUALIZATION ---
+    st.markdown("---")
+    st.header("1. Temperature Trends (2013-2017)")
+    st.write("Notice the clear **sine-wave pattern**. The peaks are Summers, and troughs are Winters.")
+
+    # Create the Line Graph
+    fig1, ax1 = plt.subplots(figsize=(10, 4))
+    ax1.plot(df['Date'], df['Temperature'], color='teal', linewidth=1)
+    ax1.set_title("Daily Temperature in Delhi")
+    ax1.set_ylabel("Temperature (°C)")
+    ax1.set_xlabel("Date")
+    ax1.grid(True, alpha=0.3)
     
+    # SHOW GRAPH IN STREAMLIT
+    st.pyplot(fig1)
+
+    # --- 4. ANOMALY DETECTION (Outliers) ---
+    st.markdown("---")
+    st.header("2. Detecting Extreme Weather (Outliers)")
+    st.write("We use **Z-Score** to find days that were statistically 'too hot' or 'too cold'.")
+
+    # Math Logic
     df['z_score'] = stats.zscore(df['Temperature'])
-    outliers = df[np.abs(df['z_score']) > 3]
     
-    st.write(f"✅ Checkpoint 7: Found {len(outliers)} outliers!")
+    # Slider: Let users play with the threshold!
+    threshold = st.slider("Select Z-Score Threshold (Standard Deviations)", 1.5, 4.0, 3.0)
+    
+    # Filter based on slider
+    outliers = df[np.abs(df['z_score']) > threshold]
 
-    # --- STEP 4: SEABORN PLOT ---
-    st.write("⏳ Checkpoint 8: Attempting Seaborn Boxplot...")
-    
-    fig2, ax2 = plt.subplots(figsize=(10, 4))
-    sns.boxplot(x=df['Temperature'], ax=ax2)
+    # Display Results
+    col1, col2 = st.columns(2)
+    col1.metric("Total Days Analyzed", len(df))
+    col2.metric("Extreme Days Found", len(outliers))
+
+    if len(outliers) > 0:
+        st.write(f"Found {len(outliers)} days where temperature was extreme (Threshold > {threshold})")
+        st.dataframe(outliers[['Date', 'Temperature', 'z_score']].sort_values(by='Temperature', ascending=False))
+    else:
+        st.info(f"No extreme days found with a threshold of {threshold}. Try lowering it to 2.0!")
+
+    # --- 5. DISTRIBUTION PLOT ---
+    st.write("### Temperature Distribution")
+    fig2, ax2 = plt.subplots(figsize=(10, 3))
+    sns.boxplot(x=df['Temperature'], color='orange', ax=ax2)
     st.pyplot(fig2)
-    
-    st.success("🎉 CONGRATULATIONS! ALL CODE RAN SUCCESSFULLY!")
 
 except Exception as e:
-    st.error("❌ THE APP CRASHED HERE!")
-    st.error(f"Error Message: {e}")
-    st.warning("Please copy the error message above and paste it in the chat.")
+    st.error(f"Error loading data: {e}")
